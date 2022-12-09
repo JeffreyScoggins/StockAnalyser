@@ -15,32 +15,39 @@ datajson = json.loads(data.decode('utf-8')) #Converts to python dictionary
 stockData = datajson["data"] #SubDirectory
 optionsData = stockData["options"] #Subdirectory
 
-counteven = 0
-countodd = 1
-deltaSumCurrent = 1.0
-deltaSumPrevious = 1.0
-deltaNeutral = 0.0
-deltaNeutralStrike = ""
+#Delta Neutal is the lowest difference between puts and calls of the same strike. This function takes the calls[even] and puts[odd] and subtracts the values
+#Since Put delta is always negative, the data is added together to find the diffence. The strike with the smallest difference is the delta neutral strike.
+#Takes optionsData lenght as int as arg. Divided by 2 due to counting by evens/odds. OutOfBounds error occurs otherwise
+#greekData is a subdirectory that contains each individual options stike data greekDataXXXXXDelta contains the delta value for each options strike
 
+counteven = 0 #add 2 to keep even
+countodd = 1 #add 2 to keep odd
+deltaSumCurrent = 1.0 #1.0 as options delta should never be above 1.0
+deltaSumPrevious = 1.0 
+deltaNeutral = 0.0 
+strike = ""
+deltaNeutralStrike = ""
 for x in range(int(len(optionsData)/2)):
     greekData = optionsData[counteven] #Subdirectory
     greekDataCall = optionsData[counteven]
     greekDataCallDelta = greekDataCall['delta']
     greekDataPut = optionsData[countodd]
     greekDataPutDelta = greekDataPut['delta']
-
-    deltaSumCurrent = float(greekDataPutDelta) + float(greekDataCallDelta)
-    if deltaSumCurrent < 0:
-        deltaSumCurrent * -1.0
-    print ('Delta Sum Current')
-    print (deltaSumCurrent)
-    print ('Delta Sum Previous')
-    print (deltaSumPrevious)
-    if deltaSumCurrent < deltaSumPrevious:
+    strike = greekData['option']
+    deltaSumCurrent = float(greekDataPutDelta) + float(greekDataCallDelta) 
+    abs(deltaSumCurrent)
+    print("Call")
+    print(greekDataCallDelta)
+    print("Put")
+    print(greekDataPutDelta)
+    print("Delta Sum")
+    print(deltaSumCurrent)
+    if deltaSumCurrent < deltaSumPrevious: 
         deltaNeutral = float(greekData['delta'])
         deltaSumPrevious = float(greekData['delta'])
         deltaNeutralStrike = greekData['option']
-    deltaSumPrevious = deltaSumCurrent
+        deltaSumPrevious = deltaSumCurrent
+        deltaNeutralStrike = strike
     counteven += 2
     countodd += 2
 print("Delta Neutral: ")
