@@ -28,46 +28,80 @@ deltaNeutral = 0.0
 strike = ""
 deltaNeutralStrike = ""
 for x in range(int(len(optionsData)/2)):
+
     greekData = optionsData[counteven] #Subdirectory
     greekDataCall = optionsData[counteven]
     greekDataCallDelta = greekDataCall['delta']
     greekDataPut = optionsData[countodd]
     greekDataPutDelta = greekDataPut['delta']
     strike = greekData['option']
-    deltaSumCurrent = float(greekDataPutDelta) + float(greekDataCallDelta) 
-    abs(deltaSumCurrent)
-    print("Call")
-    print(greekDataCallDelta)
-    print("Put")
-    print(greekDataPutDelta)
-    print("Delta Sum")
-    print(deltaSumCurrent)
+    OICall = greekDataCall['open_interest']
+    OIPut = greekDataPut['open_interest']
+    deltaOICall = OICall * greekDataCallDelta
+    deltaOIPut = OIPut * greekDataPutDelta
+    deltaSumCurrent = deltaOICall + deltaOIPut #deltaOIPut should always be negative so number is added to find difference
     if deltaSumCurrent < deltaSumPrevious: 
         deltaNeutral = float(greekData['delta'])
         deltaSumPrevious = float(greekData['delta'])
         deltaNeutralStrike = greekData['option']
         deltaSumPrevious = deltaSumCurrent
-        deltaNeutralStrike = strike
+        gammaNeutralStrike = strike
     counteven += 2
     countodd += 2
 print("Delta Neutral: ")
 print(deltaNeutralStrike)
-print(deltaNeutral)
+
+
+counteven = 0 #add 2 to keep even
+countodd = 1 #add 2 to keep odd
+gammaSumCurrent = 1.0 #1.0 as options delta should never be above 1.0
+gammaSumPrevious = 1.0 
+gammaNeutral = 0.0 
+strike = ""
+gammaNeutralStrike = ""
+for x in range(int(len(optionsData)/2)):
+
+    greekData = optionsData[counteven] #Subdirectory
+    greekDataCall = optionsData[counteven]
+    greekDataCallDelta = greekDataCall['gamma']
+    greekDataPut = optionsData[countodd]
+    greekDataPutDelta = greekDataPut['gamma']
+    strike = greekData['option']
+    OICall = greekDataCall['open_interest']
+    OIPut = greekDataPut['open_interest']
+    gammaOICall = OICall * greekDataCallDelta
+    gammaOIPut = OIPut * greekDataPutDelta
+    gammaSumCurrent = gammaOICall - gammaOIPut
+    if gammaSumCurrent < gammaSumPrevious: 
+        gammaNeutral = float(greekData['gamma'])
+        gammaSumPrevious = float(greekData['gamma'])
+        gammaNeutralStrike = greekData['option']
+        gammaSumPrevious = gammaSumCurrent
+        gammaNeutralStrike = strike
+    counteven += 2
+    countodd += 2
+print("Gamma Neutral: ")
+print(gammaNeutralStrike)
+
 
 count = 0
 gammaPrevious = 0.0
 gammaMax = 0.0
 gammaMaxStrike = ""
-for x in optionsData:
+
+for x in range(int(len(optionsData)/2)):
     greekData = optionsData[count] #Subdirectory
-    if float(greekData['gamma']) > gammaPrevious:
-        gammaMax = float(greekData['gamma'])
-        gammaPrevious = float(greekData['gamma'])
+    OI = greekData['open_interest']
+    gamma = greekData['gamma'] + 1
+    gammaMaxTemp = OI * gamma
+    if float(gammaMaxTemp) > gammaPrevious:
+        gammaMax = gammaMaxTemp
+        gammaPrevious = gammaMaxTemp
         gammaMaxStrike = greekData['option']
-    count += 1
+    count += 2
 print("Gamma Max: ")
 print (gammaMaxStrike)
-print(gammaMax)
+
 
     
 
