@@ -22,8 +22,8 @@ optionsData = stockData["options"] #Subdirectory
 
 counteven = 0 #add 2 to keep even
 countodd = 1 #add 2 to keep odd
-deltaSumCurrent = 1.0 #1.0 as options delta should never be above 1.0
-deltaSumPrevious = 1.0 
+deltaSumCurrent = 0.0 #1.0 as options delta should never be above 1.0
+deltaSumPrevious = 0.0 
 deltaNeutral = 0.0 
 strike = ""
 deltaNeutralStrike = ""
@@ -40,12 +40,14 @@ for x in range(int(len(optionsData)/2)):
     deltaOICall = OICall * greekDataCallDelta
     deltaOIPut = OIPut * greekDataPutDelta
     deltaSumCurrent = deltaOICall + deltaOIPut #deltaOIPut should always be negative so number is added to find difference
-    if deltaSumCurrent < deltaSumPrevious: 
+    if deltaSumCurrent < 0.0:
+        deltaSumCurrent = deltaSumCurrent * -1
+    if deltaSumCurrent > deltaSumPrevious: 
         deltaNeutral = float(greekData['delta'])
         deltaSumPrevious = float(greekData['delta'])
         deltaNeutralStrike = greekData['option']
         deltaSumPrevious = deltaSumCurrent
-        gammaNeutralStrike = strike
+        deltaNeutralStrike = strike
     counteven += 2
     countodd += 2
 print("Delta Neutral: ")
@@ -94,7 +96,7 @@ for x in range(int(len(optionsData)/2)):
     OI = greekData['open_interest']
     gamma = greekData['gamma'] + 1
     gammaMaxTemp = OI * gamma
-    if float(gammaMaxTemp) > gammaPrevious:
+    if float(gammaMaxTemp) < gammaPrevious:
         gammaMax = gammaMaxTemp
         gammaPrevious = gammaMaxTemp
         gammaMaxStrike = greekData['option']
