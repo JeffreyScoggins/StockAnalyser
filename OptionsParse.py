@@ -48,8 +48,8 @@ while (True): #infinite loop
         if deltaSumCurrent < 0.0:
             deltaSumCurrent = deltaSumCurrent * -1
         if deltaSumCurrent > deltaSumPrevious: 
-            deltaNeutral = float(greekData['delta'])
-            deltaSumPrevious = float(greekData['delta'])
+            deltaNeutral = greekData['delta']
+            deltaSumPrevious = greekData['delta']
             deltaNeutralStrike = greekData['option']
             deltaSumPrevious = deltaSumCurrent
             deltaNeutralStrike = strike
@@ -78,10 +78,10 @@ while (True): #infinite loop
         OIPut = greekDataPut['open_interest']
         gammaOICall = OICall * greekDataCallDelta
         gammaOIPut = OIPut * greekDataPutDelta
-        gammaSumCurrent = gammaOICall - gammaOIPut
-        if gammaSumCurrent < gammaSumPrevious: 
-            gammaNeutral = float(greekData['gamma'])
-            gammaSumPrevious = float(greekData['gamma'])
+        gammaSumCurrent = gammaOICall + gammaOIPut
+        if gammaSumCurrent > gammaSumPrevious: 
+            gammaNeutral = greekData['gamma']
+            gammaSumPrevious = greekData['gamma']
             gammaNeutralStrike = greekData['option']
             gammaSumPrevious = gammaSumCurrent
             gammaNeutralStrike = strike
@@ -92,25 +92,20 @@ while (True): #infinite loop
 
 
     count = 0
-    gammaPrevious = 0.0
     gammaMax = 0.0
     gammaMaxStrike = ""
 
-    for x in range(int(len(optionsData)/2)):
+    for x in range(300):
         greekData = optionsData[count] #Subdirectory
         OI = greekData['open_interest']
-        gamma = greekData['gamma'] + 1
-        gammaMaxTemp = OI * gamma
-        if float(gammaMaxTemp) > gammaPrevious:
+        gamma = greekData['gamma']
+        gammaMaxTemp = (gamma + 1) * OI
+        if gammaMaxTemp > gammaMax:
             gammaMax = gammaMaxTemp
-            gammaPrevious = gammaMaxTemp
             gammaMaxStrike = greekData['option']
         count += 2
     print("Gamma Max: ")
     print (gammaMaxStrike)
+    
 
-
-        
-
-
-            
+                    
