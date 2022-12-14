@@ -1,13 +1,5 @@
-#!/usr/bin/env python3
-import sys
-import json
-import urllib.request as ur
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-from urllib.error import HTTPError
 
-def deltaNeutral(stockData):
+def deltaNeutral(stockData, charLen):
     #Delta Neutal is the lowest difference between puts and calls of the same strike. This function takes the calls[even] and puts[odd] and subtracts the values
     #Since Put delta is always negative, the data is added together to find the diffence. The strike with the smallest difference is the delta neutral strike.
     #Takes optionsData lenght as int as arg. Divided by 2 due to counting by evens/odds. OutOfBounds error occurs otherwise
@@ -42,7 +34,6 @@ def deltaNeutral(stockData):
             deltaNeutralStrike = greekData['option']
             deltaSumPrevious = deltaSumCurrent
             deltaNeutralStrike = deltaStrike
-            deltaNeutralStrikeOG = deltaStrike
         counteven += 2
         countodd += 2
     if deltaStrike[charLen + 12] !='0': #x.xx
@@ -56,7 +47,7 @@ def deltaNeutral(stockData):
     print("Delta Neutral:")
     print(deltaNeutralStrike)
 
-def gammaNeutral(stockData):
+def gammaNeutral(stockData, charLen):
     optionsData = stockData["options"] #Subdirectory
     counteven = 0 #add 2 to keep even
     countodd = 1 #add 2 to keep odd
@@ -97,7 +88,7 @@ def gammaNeutral(stockData):
     print(gammaNeutralStrike)
 
 
-def gammaMax(stockData):
+def gammaMax(stockData, charLen):
     optionsData = stockData["options"] #Subdirectory
     count = 0
     strike = ""
@@ -124,23 +115,7 @@ def gammaMax(stockData):
     print('Gamma Max:')
     print(gammaMaxStrike)
 
-while (True): #infinite loop
-    try:
-        ticker = input ('Enter stock ticker\n')
-        url = "https://cdn.cboe.com/api/global/delayed_quotes/options/"+ticker.upper()+".json" #pulls options JSON data from CBOE for desired stock ticker
-        data = ur.urlopen(url).read() #Pulls JSON data form URL 
 
-    except HTTPError as err:
-        if err.code == 403:
-            print ('Invalid Entry')
-            continue
-    charLen = len(ticker) - 1 
-    datajson = json.loads(data.decode('utf-8')) #Converts to python dictionary
-    stockData = datajson["data"] #SubDirectory
-
-    deltaNeutral(stockData)
-    gammaNeutral(stockData)
-    gammaMax(stockData)
 
     
     
